@@ -4,5 +4,9 @@ properties:
   iineCount:
     type: integer
     example: 42
+  iiyoCount:
+    type: integer
+    example: 17
 required:
   - iineCount
+  - iiyoCount
