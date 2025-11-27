@@ -20,11 +20,8 @@ jobs:
     
     steps:
       # 1. リポジトリのチェックアウト
-      # refを指定しないとdetached HEAD状態になり、後のプッシュで失敗します
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
 
       # 2. pnpmの有効化
       - name: Set up Corepack
@@ -67,6 +64,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add ./srcs/shared/types/api-types.ts
           git commit -m 'Generate types from OpenAPI spec' || echo "No changes to commit"
-          git push origin main
+          echo "Pushing changes to branch ${{ github.ref_name }}"
+          git push origin HEAD:${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
