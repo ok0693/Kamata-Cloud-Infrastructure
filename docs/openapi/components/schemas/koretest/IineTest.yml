@@ -1,0 +1,8 @@
+// iinetest yml
+type: object
+properties:
+  iineCount:
+    type: integer
+    example: 42
+required:
+  - iineCount
