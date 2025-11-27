@@ -1,0 +1,8 @@
+// テスト用のyml
+type: object
+properties:
+  message:
+    type: string
+    example: "今日は良い天気ですね！"
+required:
+  - message
