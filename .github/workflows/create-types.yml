@@ -19,54 +19,50 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # 1. リポジトリのチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. pnpmの有効化
       - name: Set up Corepack
         run: corepack enable
 
+      # 3. Node.jsのセットアップ
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
+          # package.jsonがサブディレクトリにあるため、ロックファイルのパスを明示
           cache-dependency-path: "srcs/pnpm-lock.yaml"
 
+      # 4. 依存関係のインストール (srcsディレクトリ内)
       - name: Install dependencies
         working-directory: ./srcs
+        # CI環境では frozen-lockfile を使うのがベストプラクティス
         run: |
           pnpm install --frozen-lockfile
 
-      # 【修正1】ディレクトリの存在保証とデバッグ情報の表示
+      # 5. OpenAPI定義のバンドル (結合)
+      # ルートディレクトリで実行。redoclyは依存に入れず dlx で実行するのが手軽
       - name: Bundle API Docs
         run: |
-          echo "Current directory: $(pwd)"
-          ls -R docs/ # docsの中身を確認
-          
-          # publicディレクトリが無ければ作る
-          mkdir -p public
-          
-          # バンドル実行
           pnpm --package=@redocly/cli dlx redocly bundle docs/openapi/openapi.yml -o public/api.yml
-          
-          # 【重要】生成されたファイルの中身をログに出す（空ならここで判明する）
-          echo "--- Generated api.yml content ---"
-          cat public/api.yml
-          echo "---------------------------------"
 
+      # 6. 型定義の生成
+      # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用
       - name: Generate Types
         working-directory: ./srcs
         run: |
-          # ../public/api.yml の存在確認（念の為）
-          ls -la ../public/api.yml
-          
-          pnpm openapi-typescript --root-types --root-types-no-schema-prefix ../public/api.yml --output ./shared/types/api-types.ts
+          # ../public/api.yml はルートにあるファイルを指す
+          pnpx openapi-typescript ../docs/openapi/openapi.yml --root-types=true --root-types-no-schema-prefix=true -o ./shared/types/api.ts
 
+      # 7. 変更の検知とプッシュ
       - name: Commit and Push Generated Types
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add ./shared/types/api-types.ts
+          git add ./srcs/shared/types/api-types.ts
           git commit -m 'Generate types from OpenAPI spec' || echo "No changes to commit"
           echo "Pushing changes to branch ${{ github.ref_name }}"
           git push origin HEAD:${{ github.ref_name }}
