@@ -55,7 +55,7 @@ jobs:
         working-directory: ./srcs
         run: |
           # ../public/api.yml はルートにあるファイルを指す
-          pnpm openapi-typescript ../public/api.yml --output ./shared/types/api-types.ts
+          pnpm openapi-typescript --root-types --root-types-no-schema-prefix ../public/api.yml --output ./shared/types/api-types.ts
 
       # 7. 変更の検知とプッシュ
       - name: Commit and Push Generated Types
