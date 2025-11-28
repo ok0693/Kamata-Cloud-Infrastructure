@@ -43,19 +43,13 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
 
-      # 5. OpenAPI定義のバンドル (結合)
-      # ルートディレクトリで実行。redoclyは依存に入れず dlx で実行するのが手軽
-      - name: Bundle API Docs
-        run: |
-          pnpm --package=@redocly/cli dlx redocly bundle docs/openapi/openapi.yml -o public/api.yml
-
       # 6. 型定義の生成
       # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用
       - name: Generate Types
         working-directory: ./srcs
         run: |
           # ../public/api.yml はルートにあるファイルを指す
-          pnpx openapi-typescript ../docs/openapi/openapi.yml --root-types=true --root-types-no-schema-prefix=true -o ./shared/types/api.ts
+          pnpx openapi-typescript ../docs/openapi/openapi.yml --root-types=true --root-types-no-schema-prefix=true -o ./shared/types/api-types.ts
 
       # 7. 変更の検知とプッシュ
       - name: Commit and Push Generated Types
