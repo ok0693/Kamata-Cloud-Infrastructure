@@ -1,0 +1,12 @@
+## ymainoo test schema
+type: object
+properties:
+  ymainooCount:
+    type: integer
+    example: 100
+  ymainooMessage:
+    type: string
+    example: "やみのー！"
+required:
+  - ymainooCount
+  - ymainooMessage

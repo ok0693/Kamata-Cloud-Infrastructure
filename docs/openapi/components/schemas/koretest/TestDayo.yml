@@ -1,4 +1,4 @@
-// テスト用のyml
+## テスト用のyml
 type: object
 properties:
   message:
